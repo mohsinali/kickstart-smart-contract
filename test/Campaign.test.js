@@ -52,4 +52,27 @@ describe('Campaigns', () => {
     const isContributor = await campaign.methods.approvers(accounts[1]).call()
     assert(isContributor)
   })
+
+  it('requires minimum contribution', async () => {
+    try{
+      await campaign.methods.contribute().send({
+        value: '5',
+        from: accounts[0]
+      })
+      assert(false)
+    } catch(err) {
+      assert(err)
+    }
+  })
+
+  it('allows a manger to make a payment request', async () => {
+    await campaign.methods
+                .createRequest('Buy batteries', '100', accounts[1])
+                .send({
+                  from: accounts[0],
+                  value: '1000000'
+                })
+    const request = await campaign.methods.requests(0).call()
+    assert.equal('Buy batteries', request.description)
+  })
 })
